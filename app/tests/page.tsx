@@ -66,7 +66,17 @@ export default function TestsPage() {
                   className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition"
                 >
                   <h2 className="text-xl font-bold text-gray-800 mb-2">{test.title}</h2>
-                  <p className="text-gray-600 mb-4">{test.description}</p>
+                  <p
+                    className="text-gray-600 mb-4 max-w-full"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {test.description}
+                  </p>
                   <Link href={`/tests/${test.id}`}>
                     <Button className="bg-[#4CAF50] hover:bg-[#45a049] text-white">Ko'rish</Button>
                   </Link>

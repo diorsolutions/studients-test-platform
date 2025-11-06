@@ -18,7 +18,7 @@ type Question = {
   type: QuestionType
   text: string
   options?: string[]
-  correctAnswer?: string | number
+  correctAnswer?: string | number | null
 }
 
 type AddTestWizardProps = {
@@ -31,6 +31,8 @@ export default function AddTestWizard({ onClose, onSuccess }: AddTestWizardProps
   const [testName, setTestName] = useState("")
   const [testDescription, setTestDescription] = useState("")
   const [questions, setQuestions] = useState<Question[]>([])
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [questionText, setQuestionText] = useState("")
   const [questionType, setQuestionType] = useState<QuestionType>("")
   const [radioOptions, setRadioOptions] = useState(["", "", "", ""])
@@ -134,6 +136,30 @@ export default function AddTestWizard({ onClose, onSuccess }: AddTestWizardProps
 
       const testId = testData[0].id
 
+      // upload images to storage (bucket: test-images) and collect public URLs
+      let imageUrls: string[] = []
+      if (imageFiles.length > 0) {
+        try {
+          for (const file of imageFiles) {
+            const filePath = `${testId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_")}`
+            const { error: uploadError } = await supabase.storage.from("test-images").upload(filePath, file)
+            if (uploadError) {
+              console.warn("Upload error for", file.name, uploadError)
+              continue
+            }
+            const { data: publicData } = supabase.storage.from("test-images").getPublicUrl(filePath)
+            if (publicData && publicData.publicUrl) imageUrls.push(publicData.publicUrl)
+          }
+
+          if (imageUrls.length > 0) {
+            const { error: updErr } = await supabase.from("tests").update({ images: imageUrls }).eq("id", testId)
+            if (updErr) console.warn("Failed to update test images", updErr)
+          }
+        } catch (e) {
+          console.warn("Image upload error", e)
+        }
+      }
+
       const questionRecords = questions.map((q, idx) => ({
         test_id: testId,
         question_text: q.text,
@@ -210,6 +236,30 @@ export default function AddTestWizard({ onClose, onSuccess }: AddTestWizardProps
                   rows={3}
                   className="mt-2"
                 />
+              </div>
+              <div>
+                <Label className="text-gray-700 font-semibold">Test uchun rasm(lar) (ixtiyoriy)</Label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    const files = e.target.files ? Array.from(e.target.files) : []
+                    setImageFiles(files)
+                    setImagePreviews(files.map((f) => URL.createObjectURL(f)))
+                  }}
+                  className="mt-2"
+                />
+
+                {imagePreviews.length > 0 && (
+                  <div className="mt-3 flex gap-3">
+                    {imagePreviews.map((src, idx) => (
+                      <div key={idx} className="w-24 h-24 rounded overflow-hidden border">
+                        <img src={src} alt={`preview-${idx}`} className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}

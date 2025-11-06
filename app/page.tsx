@@ -51,15 +51,13 @@ export default function Home() {
       <Header />
 
       <main className="flex-1">
-        {/* Hero Section - show different content based on auth/admin state */}
-        <section className="bg-gradient-to-b from-gray-50 to-white py-20 px-4">
+        <section className="h-screen flex justify-center items-center pb-20 px-4">
           <div className="max-w-4xl mx-auto text-center space-y-6">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-800">PIRLS platformasiga xush kelibsiz!</h1>
+            <h1 className="text-4xl md:text-5xl font-bold">PIRLS platformasiga xush kelibsiz!</h1>
 
-            <p className="text-lg text-gray-600">Buxoro viloyati pedagogik mahorat markazi</p>
+            <p className="text-lg">Kelinglar bolajonlar, bilimimizni sinab ko'ramiz</p>
 
             {!user ? (
-              // Logged out: show original hero + login/register
               <>
                 <p className="text-gray-700 max-w-2xl mx-auto leading-relaxed">
                   Oson va tez ro'yxatdan o'tib, bilimlaringizni sinab ko'ring. Platformamiz orqali turli testlardan
@@ -83,7 +81,6 @@ export default function Home() {
                 </div>
               </>
             ) : isAdmin ? (
-              // Admin: show admin-specific quick links
               <>
                 <p className="text-gray-700 max-w-2xl mx-auto leading-relaxed">Admin paneliga o'ting yoki testlarni boshqaring.</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -92,7 +89,6 @@ export default function Home() {
                 </div>
               </>
             ) : (
-              // Logged-in pupil: show quick links to tests and dashboard
               <>
                 <p className="text-gray-700 max-w-2xl mx-auto leading-relaxed">Xush kelibsiz! Testlarga o'ting yoki natijalaringizni ko'ring.</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">

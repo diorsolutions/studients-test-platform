@@ -54,9 +54,20 @@ export default function Header() {
   }, [supabase])
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push("/")
-    router.refresh()
+    try {
+      // remove admin token if present
+      try {
+        localStorage.removeItem("admin_token")
+        setIsAdmin(false)
+      } catch {}
+
+      if (user) {
+        await supabase.auth.signOut()
+      }
+    } finally {
+      router.push("/")
+      router.refresh()
+    }
   }
 
   return (
@@ -88,9 +99,9 @@ export default function Header() {
           <ThemeToggle />
           {!isLoading && (
             <>
-              {user ? (
+              {user || isAdmin ? (
                 <div className="flex items-center gap-2 md:gap-3">
-                  <span className="text-xs md:text-sm truncate">{user.email}</span>
+                  <span className="text-xs md:text-sm truncate">{user ? user.email : "Admin"}</span>
                   <Button
                     onClick={handleLogout}
                     variant="outline"

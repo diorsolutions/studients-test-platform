@@ -86,10 +86,22 @@ export default function TestListView({ onAddNew, onRefresh }: TestListViewProps)
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-400 text-lg">{test.title}</h3>
-                  <p className="text-sm text-gray-600 mt-1">{test.description}</p>
+                  <p
+                    className="text-sm text-gray-600 mt-1 max-w-full"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {test.description}
+                  </p>
                   <p className="text-xs text-gray-400 mt-2">{new Date(test.created_at).toLocaleDateString("uz-UZ")}</p>
                 </div>
                 <div className="flex gap-2">
+                  {/* Edit action currently non-functional in general admin view — hide the button to avoid confusion */}
+                  {/*
                   <Button
                     size="sm"
                     variant="outline"
@@ -97,6 +109,7 @@ export default function TestListView({ onAddNew, onRefresh }: TestListViewProps)
                   >
                     <Edit2 size={16} />
                   </Button>
+                  */}
                   <Button
                     size="sm"
                     variant="outline"

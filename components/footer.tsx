@@ -66,14 +66,17 @@ export default function Footer() {
 
                   {/* hover popover for person */}
                   {hoverPerson === "person" && (
-                    <div className="absolute bottom-8 left-0 z-50 w-96 bg-white border rounded-lg shadow-lg p-4 text-left">
+                    <div className="absolute bottom-10 left-0 z-50 w-[360px] bg-white border rounded-lg shadow-lg p-4 text-left">
                       <div className="flex gap-4">
                         <div className="flex-shrink-0">
-                          <Image src="/per.jpg" alt="Eism Sharif" width={160} height={160} className="object-contain rounded" />
+                          <div className="w-20 h-20 rounded-full overflow-hidden ring-2 ring-[#10B981]">
+                            <Image src="/per.jpg" alt="Eism Sharif" width={160} height={160} className="object-cover" />
+                          </div>
                         </div>
                         <div>
-                          <div className="font-medium">Jumaniyozova Roxila Roʻzimboyevna</div>
-                          <div className="text-sm text-gray-600">Xorazm viloyati Pedagogik mahorat markazi metodik xizmat ko’rsatish bo’limi boshlang’ich ta’lim metodisti</div>
+                          <div className="font-semibold text-gray-800">Jumaniyozova Roxila Roʻzimboyevna</div>
+                          <div className="text-sm text-gray-600 mt-1">Xorazm viloyati Pedagogik mahorat markazi</div>
+                          <div className="text-xs text-gray-500 mt-2">Metodik xizmat ko’rsatish bo’limi, boshlang’ich ta’lim metodisti</div>
                         </div>
                       </div>
                     </div>
@@ -94,14 +97,17 @@ export default function Footer() {
 
                   {/* hover popover for pertwo */}
                   {hoverPerson === "pertwo" && (
-                    <div className="absolute bottom-8 left-0 z-50 w-96 bg-white border rounded-lg shadow-lg p-4 text-left">
+                    <div className="absolute bottom-10 left-0 z-50 w-[360px] bg-white border rounded-lg shadow-lg p-4 text-left">
                       <div className="flex gap-4">
                         <div className="flex-shrink-0">
-                          <Image src="/pertwo.jpg" alt="Raximova Zulayho" width={160} height={160} className="object-contain rounded" />
+                          <div className="w-20 h-20 rounded-full overflow-hidden ring-2 ring-[#10B981]">
+                            <Image src="/pertwo.jpg" alt="Raximova Zulayho" width={160} height={160} className="object-cover" />
+                          </div>
                         </div>
                         <div>
-                          <div className="font-medium">Raximova Zulayho Baxodirovna</div>
-                          <div className="text-sm text-gray-600">Xorazm viloyati Qoʻshkoʻpir tumani 19-son umumiy oʻrta ta’lim maktabining boshlangʻich ta’lim fani oʻqituvchisi</div>
+                          <div className="font-semibold text-gray-800">Raximova Zulayho Baxodirovna</div>
+                          <div className="text-sm text-gray-600 mt-1">Xorazm viloyati Qoʻshkoʻpir tumani 19-son umumiy oʻrta ta’lim maktabi</div>
+                          <div className="text-xs text-gray-500 mt-2">Boshlangʻich ta’lim fani oʻqituvchisi</div>
                         </div>
                       </div>
                     </div>
