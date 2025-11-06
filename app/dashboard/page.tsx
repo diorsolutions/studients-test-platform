@@ -10,7 +10,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 type Result = {
-  test_excerpt: string
+  test_excerpt?: string | null
   id: string
   test_id: string
   test_title: string
@@ -22,6 +22,8 @@ type Result = {
 export default function DashboardPage() {
   const [results, setResults] = useState<Result[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [selectedSection, setSelectedSection] = useState<string | null>(null)
   const [selectedResult, setSelectedResult] = useState<Result | null>(null)
   const router = useRouter()
   const supabase = createClient()
@@ -33,6 +35,14 @@ export default function DashboardPage() {
         if (!authData.user) {
           router.push("/?showLogin=true")
           return
+        }
+
+        // detect admin by localStorage token (existing app pattern)
+        try {
+          const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null
+          setIsAdmin(Boolean(token))
+        } catch (e) {
+          setIsAdmin(false)
         }
 
         const { data, error } = await supabase
@@ -56,6 +66,7 @@ export default function DashboardPage() {
           id: result.id,
           test_id: result.test_id,
           test_title: result.tests?.title || "Noma'lum test",
+          test_excerpt: result.test_excerpt ?? null,
           answered_at: result.answered_at,
           total_questions: result.total_questions,
           score: result.score,
@@ -78,74 +89,98 @@ export default function DashboardPage() {
 
       <main className="flex-1 py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8">Natijalarim</h1>
-
-          <Link href="/tests" className="mb-6 inline-block">
-            <Button className="bg-[#4CAF50] hover:bg-[#45a049] text-white">Testlarni ko'rish</Button>
-          </Link>
-
-          {isLoading ? (
-            <p className="text-gray-600">Natijavlar yuklanyapti...</p>
-          ) : results.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="border p-3 text-left">#</th>
-                    <th className="border p-3 text-left">Sarlavha</th>
-                    <th className="border p-3 text-left">Sana</th>
-                    <th className="border p-3 text-center">To'g'ri javoblar</th>
-                    <th className="border p-3 text-center">Xatolarim</th>
-                    <th className="border p-3 text-center">Harakat</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {results.map((result, index) => (
-                    <tr key={result.id} className="hover:bg-gray-50 cursor-pointer">
-                      <td className="border p-3">{index + 1}</td>
-                      <td className="border p-3">{result.test_title}</td>
-                      <td className="border p-3">
-                        {new Date(result.answered_at).toLocaleDateString("uz-UZ", {
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </td>
-                      <td className="border p-3 text-center">
-                        <span className="bg-green-100 text-green-700 px-3 py-1 rounded">{result.score}</span>
-                      </td>
-                      <td className="border p-3 text-center">
-                        <span className="bg-red-100 text-red-700 px-3 py-1 rounded">
-                          {result.total_questions - result.score}
-                        </span>
-                      </td>
-                      <td className="border p-3 text-center">
-                        <div className="w-full">
-                          <p className="font-medium truncate" title={result.test_title}>
-                            {result.test_title}
-                          </p>
-                          <p
-                            className="text-sm text-gray-500 truncate max-w-full"
-                            title={result.test_excerpt ?? result.test_title}
-                          >
-                            {result.test_excerpt ?? result.test_title}
-                          </p>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {/* If user is a pupil and hasn't selected a section yet, show only the two centered buttons */}
+          {!isAdmin && !selectedSection ? (
+            <div className="min-h-[260px] flex items-center justify-center">
+              <div className="text-center">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    onClick={() => setSelectedSection("badiiy")}
+                    className="px-10 py-4 bg-green-600 text-white rounded-lg shadow-lg text-lg"
+                  >
+                    1 - Badiiy matn
+                  </button>
+                  <button
+                    onClick={() => setSelectedSection("axborot")}
+                    className="px-10 py-4 bg-green-700 text-white rounded-lg shadow-lg text-lg"
+                  >
+                    2 - Axborot matn
+                  </button>
+                </div>
+              </div>
             </div>
           ) : (
-            <div className="bg-gray-50 p-8 rounded-lg text-center">
-              <p className="text-gray-600 mb-4">Hali hech qanday natija mavjud emas</p>
-              <Link href="/tests">
-                <Button className="bg-[#4CAF50] hover:bg-[#45a049] text-white">Testlarni boshlash</Button>
+            <>
+              <h1 className="text-3xl font-bold mb-8">Natijalarim</h1>
+
+              <Link href="/tests" className="mb-6 inline-block">
+                <Button className="bg-[#4CAF50] hover:bg-[#45a049] text-white">Testlarni ko'rish</Button>
               </Link>
-            </div>
+
+              {isLoading ? (
+                <p className="text-gray-600">Natijavlar yuklanyapti...</p>
+              ) : results.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="border p-3 text-left">#</th>
+                        <th className="border p-3 text-left">Sarlavha</th>
+                        <th className="border p-3 text-left">Sana</th>
+                        <th className="border p-3 text-center">To'g'ri javoblar</th>
+                        <th className="border p-3 text-center">Xatolarim</th>
+                        <th className="border p-3 text-center">Harakat</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {results.map((result, index) => (
+                        <tr key={result.id} className="hover:bg-gray-50 cursor-pointer">
+                          <td className="border p-3">{index + 1}</td>
+                          <td className="border p-3">{result.test_title}</td>
+                          <td className="border p-3">
+                            {new Date(result.answered_at).toLocaleDateString("uz-UZ", {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </td>
+                          <td className="border p-3 text-center">
+                            <span className="bg-green-100 text-green-700 px-3 py-1 rounded">{result.score}</span>
+                          </td>
+                          <td className="border p-3 text-center">
+                            <span className="bg-red-100 text-red-700 px-3 py-1 rounded">
+                              {result.total_questions - result.score}
+                            </span>
+                          </td>
+                          <td className="border p-3 text-center">
+                            <div className="w-full">
+                              <p className="font-medium truncate" title={result.test_title}>
+                                {result.test_title}
+                              </p>
+                              <p
+                                className="text-sm text-gray-500 truncate max-w-full"
+                                title={result.test_excerpt ?? result.test_title}
+                              >
+                                {result.test_excerpt ?? result.test_title}
+                              </p>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="bg-gray-50 p-8 rounded-lg text-center">
+                  <p className="text-gray-600 mb-4">Hali hech qanday natija mavjud emas</p>
+                  <Link href="/tests">
+                    <Button className="bg-[#4CAF50] hover:bg-[#45a049] text-white">Testlarni boshlash</Button>
+                  </Link>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
