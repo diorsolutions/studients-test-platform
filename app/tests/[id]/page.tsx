@@ -12,6 +12,7 @@ type Test = {
   id: string
   title: string
   description: string
+  images?: string[] | null
 }
 
 type Question = {
@@ -63,7 +64,22 @@ export default function TestDetailPage() {
         const { data: testData, error: testError } = await supabase.from("tests").select("*").eq("id", testId).single()
 
         if (testError) throw testError
-        setTest(testData)
+        // normalize images field to an array of URLs when possible
+        let images: string[] = []
+        if (testData?.images) {
+          if (Array.isArray(testData.images)) images = testData.images
+          else if (typeof testData.images === "string") {
+            try {
+              const parsed = JSON.parse(testData.images)
+              if (Array.isArray(parsed)) images = parsed
+              else images = [testData.images]
+            } catch (e) {
+              images = [testData.images]
+            }
+          }
+        }
+
+        setTest({ ...testData, images })
 
         const { data: questionsData, error: questionsError } = await supabase
           .from("test_questions")
@@ -155,6 +171,12 @@ export default function TestDetailPage() {
           <h1 className="text-3xl font-bold text-gray-800 mb-4">{test.title}</h1>
 
           <p className="text-gray-700 mb-8 leading-relaxed">{test.description}</p>
+
+            {test.images && test.images.length > 0 && (
+            <div className="mb-6">
+              <img src={test.images[0]} alt={test.title} className="w-full h-auto rounded" />
+            </div>
+          )}
 
           <div className="space-y-6">
             {questions.map((question) => (

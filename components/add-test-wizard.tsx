@@ -136,19 +136,33 @@ export default function AddTestWizard({ onClose, onSuccess }: AddTestWizardProps
 
       const testId = testData[0].id
 
-      // upload images to storage (bucket: test-images) and collect public URLs
+      // upload images via server API (/api/upload) which uses the service role key
       let imageUrls: string[] = []
       if (imageFiles.length > 0) {
         try {
           for (const file of imageFiles) {
-            const filePath = `${testId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_")}`
-            const { error: uploadError } = await supabase.storage.from("test-images").upload(filePath, file)
-            if (uploadError) {
-              console.warn("Upload error for", file.name, uploadError)
+            try {
+              const formData = new FormData()
+              formData.append("file", file)
+              formData.append("testId", String(testId))
+
+              const res = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+              })
+
+              if (!res.ok) {
+                const text = await res.text()
+                console.warn("Server upload failed for", file.name, res.status, text)
+                continue
+              }
+
+              const json = await res.json()
+              if (json?.publicUrl) imageUrls.push(json.publicUrl)
+            } catch (e) {
+              console.warn("Image upload error for", file.name, e)
               continue
             }
-            const { data: publicData } = supabase.storage.from("test-images").getPublicUrl(filePath)
-            if (publicData && publicData.publicUrl) imageUrls.push(publicData.publicUrl)
           }
 
           if (imageUrls.length > 0) {
