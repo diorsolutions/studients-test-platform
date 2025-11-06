@@ -89,8 +89,8 @@ export default function DashboardPage() {
 
       <main className="flex-1 py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          {/* If user is a pupil and hasn't selected a section yet, show only the two centered buttons */}
-          {!isAdmin && !selectedSection ? (
+          {/* If user is a pupil, has not selected a section, and has no results yet, show only the two centered buttons */}
+          {!isAdmin && !selectedSection && !isLoading && results.length === 0 ? (
             <div className="min-h-[260px] flex items-center justify-center">
               <div className="text-center">
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
